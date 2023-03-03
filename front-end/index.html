@@ -36,15 +36,16 @@
 		</div>
 		<div class="window-area">
 			<div class="conversation-list">
-				<ul id="conversation-list" class="">
-					<li class="item"><a href="#"><i class="fa fa-list-alt"></i><span>Dashboard</span></a></li>
+				<div class="item"><a href="#"><i class="fa fa-list-alt"></i><span>Dashboard</span></a></div>
+				<div id="add-conv-btn" class="item" onclick="addConversationForm()"><a href="#"><i class="fa fa-plus"></i><span>New Conversation</span></a></div>
+				<ul id="conversation-list" class="">					
 					<!-- <li class="item active">
 						<a href="#">
 							<i class="fa fa-user"></i>
 							<span>Team chat</span>
 							<i class="fa fa-times"></i>
 						</a>
-					</li> -->
+					</li> -->					
 				</ul>
 				<div id="my-account" class="my-account">
 					<div class="image">
@@ -102,7 +103,7 @@
 						</div>						
 					</form>	
 					<button type="button" onclick="login()"> Login </button>				
-				</div>
+				</div>				
 			</div>
 			<div class="right-tabs">
 				<ul class="tabs">

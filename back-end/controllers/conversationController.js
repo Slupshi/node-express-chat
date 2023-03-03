@@ -29,7 +29,7 @@ exports.post = (req, res, next) => {
     });
 };
 
-exports.put = (req, res, next) => {
+exports.put = async (req, res, next) => {
   sConversation
     .updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
     .then(() => res.status(200).json({ message: "Conversation modifiée" }))
@@ -45,7 +45,9 @@ exports.delete = (req, res, next) => {
 
 exports.own = (req, res, next) => {
   sConversation
-    .find({ particpantsID: { $all: [req.body.userID] } })
+    .find({
+      participants: { userID: req.body.userID, userName: req.body.userName },
+    })
     .then((conversations) => res.status(200).json(conversations))
     .catch((error) => res.status(400).json({ error }));
 };

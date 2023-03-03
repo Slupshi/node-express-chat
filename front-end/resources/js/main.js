@@ -31,19 +31,23 @@ let lastTimeOut = null;
 
 function handleLogin() {
   localStorage.setItem("token", connectedUser.token);
-  hideLogin();
   getConvs();
+  var loginForm = document.getElementById("login-form");
+  loginForm.style.display = "none";
   showUserName();
 }
 
 function showUserName() {
   var accountTile = document.getElementById("my-account");
+  accountTile.addEventListener("click", disconnect);
   accountTile.style.display = "block";
   var accountNameSpan = document.getElementById("accountName");
   accountNameSpan.innerText = connectedUser.name;
 }
 
 function getConvs() {
+  let list = document.getElementById("conversation-list");
+  list.innerHTML = "";
   fetch(`${server}/conversations/own`, {
     method: "POST",
     headers: {
@@ -53,6 +57,7 @@ function getConvs() {
     },
     body: JSON.stringify({
       userID: connectedUser.userId,
+      userName: connectedUser.name,
     }),
   })
     .then((res) => {
@@ -167,7 +172,8 @@ function showConversation(conversation) {
     var chatMsgTimeSpan = document.createElement("span");
     chatMsgTimeSpan.classList = "msg-time";
     var date = new Date(msg.sendAt);
-    var time = `${date.getHours()}:${date.getMinutes()}`;
+    var minutes = date.getMinutes();
+    var time = `${date.getHours()}:${minutes < 10 ? `0${minutes}` : minutes}`;
     chatMsgTimeSpan.innerText = time;
     chatMsgDiv.appendChild(chatMsgContent);
     chatMsgDiv.appendChild(chatMsgTimeSpan);
@@ -231,8 +237,15 @@ function showConversation(conversation) {
   content.appendChild(writingDiv);
   content.appendChild(inputArea);
 
+  // MemberList
   var memberList = document.getElementById("member-list");
   memberList.innerHTML = "";
+  var totalMsg = document.createElement("span");
+  totalMsg.innerText = `${conversation.messages.length} message${
+    conversation.messages.length > 1 ? "s" : ""
+  }`;
+  memberList.appendChild(totalMsg);
+  console.log(conversation.participants);
   conversation.participants.forEach((user) => {
     var memberListTile = document.createElement("li");
     var statusIcon = document.createElement("i");
@@ -241,16 +254,14 @@ function showConversation(conversation) {
     statusSpan.classList = "status online";
     statusSpan.appendChild(statusIcon);
     var memberName = document.createElement("span");
-    memberName.innerText = user.userName;
+    var msgCount = conversation.messages.filter(
+      (x) => x.sender.userID == user.userID
+    ).length;
+    memberName.innerText = `${user.userName} (${msgCount})`;
     memberListTile.appendChild(statusSpan);
     memberListTile.appendChild(memberName);
     memberList.appendChild(memberListTile);
   });
-}
-
-function hideLogin() {
-  var loginForm = document.getElementById("login-form");
-  loginForm.style.display = "none";
 }
 
 // TODO: optimiser le nombre de message au socket
@@ -294,4 +305,78 @@ function sendMessage() {
     conversationID: selectedConversation._id,
     msg: newMsg,
   });
+}
+
+function addConversationForm() {
+  var content = document.getElementById("chat-area");
+  content.innerHTML = "";
+  var memberList = document.getElementById("member-list");
+  memberList.innerHTML = "";
+
+  var newConvForm = document.createElement("div");
+  newConvForm.id = "conv-form";
+  newConvForm.classList = "login";
+  var strong = document.createElement("strong");
+  strong.innerText = "Nouvelle conversation";
+  var form = document.createElement("form");
+  var entryDiv = document.createElement("div");
+  entryDiv.classList = "entry";
+  var label = document.createElement("label");
+  label.innerText = "Nom";
+  var input = document.createElement("input");
+  input.type = "text";
+  input.value = "";
+  input.placeholder = "Nouvelle conversation";
+  input.name = "convName";
+  input.id = "convName";
+  var button = document.createElement("button");
+  button.type = "button";
+  button.innerText = "Créer";
+  button.addEventListener("click", addConversation);
+
+  entryDiv.appendChild(label);
+  entryDiv.appendChild(input);
+  form.appendChild(entryDiv);
+  newConvForm.appendChild(strong);
+  newConvForm.appendChild(form);
+  newConvForm.appendChild(button);
+
+  content.appendChild(newConvForm);
+}
+
+function addConversation() {
+  var convName = document.getElementById("convName").value;
+  var body = JSON.stringify({
+    title: convName,
+    createdAt: new Date(Date.now()),
+    participants: [
+      {
+        userID: connectedUser.userId,
+        userName: connectedUser.name,
+      },
+    ],
+    messages: [
+      {
+        sender: {
+          userID: connectedUser.userId,
+          userName: connectedUser.name,
+        },
+        content: "Voici le début de votre nouvelle conversation !",
+        sendAt: new Date(Date.now()),
+      },
+    ],
+  });
+
+  console.log(body);
+
+  fetch(`${server}/conversations`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${connectedUser.token}`,
+    },
+    body: body,
+  });
+  getConvs();
 }

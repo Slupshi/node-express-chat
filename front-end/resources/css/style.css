@@ -234,6 +234,40 @@ b {
   background: #445166;
   color: #fff;
 }
+
+.conversation-list div.active a {
+  background: #445166;
+  color: #fff;
+}
+.conversation-list div a {
+  padding: 15px;
+  color: #bcc3d0;
+  text-decoration: none;
+  display: block;
+  position: relative;
+  border-bottom: 2px solid #586476;
+  transition: all 0.2s linear;
+}
+.conversation-list div a i {
+  color: #79889d;
+  font-size: 1.2em;
+}
+.conversation-list div a i.fa-times {
+  position: absolute;
+  top: 19px;
+  right: 21px;
+  font-size: 10px;
+}
+.conversation-list div a span {
+  display: inline-block;
+  margin-left: 14px;
+}
+.conversation-list div a:hover {
+  background: #445166;
+  color: #fff;
+}
+
+
 .conversation-list .online {
   color: #82cf85;
 }

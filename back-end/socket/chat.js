@@ -17,7 +17,7 @@ module.exports = function (io) {
         { _id: conv._id },
         { messages: conv.messages },
         {
-          returnOriginal: true,
+          returnOriginal: false,
         }
       );
       io.emit("newMsg", res);
