@@ -4,11 +4,25 @@ const socket = io(server);
 let conversations = [];
 let connectedUser = null;
 let selectedConversation = null;
+let writingPeople = [];
+let lastTimeOut = null;
 
 (function () {
-  //   socket.on("startup", (data) => {
-  //     console.log("Message depuis le seveur:", data);
-  //   });
+  socket.on("writing", (username) => {
+    onWriting(username);
+  });
+
+  socket.on("newMsg", (res) => {
+    if (res.conversationID == selectedConversation._id) {
+      selectedConversation.messages.push(res.msg);
+      showConversation(selectedConversation);
+    } else {
+      var conv = conversations.find((x) => x._id == res.conversationID);
+      var index = conversations.indexOf(conv);
+      conv.messages.push(res.msg);
+      conversations.splice(index, 1, conv);
+    }
+  });
 
   if (localStorage.getItem("token")) {
     loginFromToken(localStorage.getItem("token"));
@@ -143,7 +157,7 @@ function showConversation(conversation) {
     var chatNameDiv = document.createElement("div");
     chatNameDiv.classList = "name";
     var chatNameSpan = document.createElement("span");
-    chatNameSpan.innerText = msg.sender.senderName;
+    chatNameSpan.innerText = msg.sender.userName;
     chatNameDiv.appendChild(chatNameSpan);
 
     var chatMsgDiv = document.createElement("div");
@@ -158,7 +172,7 @@ function showConversation(conversation) {
     chatMsgDiv.appendChild(chatMsgContent);
     chatMsgDiv.appendChild(chatMsgTimeSpan);
 
-    if (msg.sender.senderID == connectedUser.userId) {
+    if (msg.sender.userID == connectedUser.userId) {
       chat.classList = "me";
     } else {
       chat.classList = "";
@@ -177,6 +191,15 @@ function showConversation(conversation) {
   inputText.type = "Text";
   inputText.placeholder = "Message here";
   inputText.value = "";
+  inputText.id = "msgInput";
+  inputText.addEventListener("input", () => {
+    socket.emit("writing", connectedUser.name);
+  });
+  inputText.addEventListener("keypress", function (event) {
+    if (event.key === "Enter") {
+      sendMessage();
+    }
+  });
 
   var smileIcon = document.createElement("i");
   smileIcon.classList = "fa fa-smile-o";
@@ -188,16 +211,87 @@ function showConversation(conversation) {
   submit.type = "button";
   submit.classList = "send-btn";
   submit.value = "Submit";
+  submit.addEventListener("click", sendMessage);
 
   inputArea.appendChild(inputWrapper);
   inputArea.appendChild(submit);
 
+  var writingDiv = document.createElement("div");
+  writingDiv.id = "writing-area";
+  writingDiv.classList = "writing-area";
+
+  var writingLabel = document.createElement("span");
+  writingLabel.innerText = `Someone is writing ...`;
+  writingDiv.style.display = "none";
+
+  writingDiv.appendChild(writingLabel);
+
   content.appendChild(divTitle);
   content.appendChild(chatList);
+  content.appendChild(writingDiv);
   content.appendChild(inputArea);
+
+  var memberList = document.getElementById("member-list");
+  memberList.innerHTML = "";
+  conversation.participants.forEach((user) => {
+    var memberListTile = document.createElement("li");
+    var statusIcon = document.createElement("i");
+    statusIcon.classList = "fa fa-circle-o";
+    var statusSpan = document.createElement("span");
+    statusSpan.classList = "status online";
+    statusSpan.appendChild(statusIcon);
+    var memberName = document.createElement("span");
+    memberName.innerText = user.userName;
+    memberListTile.appendChild(statusSpan);
+    memberListTile.appendChild(memberName);
+    memberList.appendChild(memberListTile);
+  });
 }
 
 function hideLogin() {
   var loginForm = document.getElementById("login-form");
   loginForm.style.display = "none";
+}
+
+// TODO: optimiser le nombre de message au socket
+function onWriting(username) {
+  if (lastTimeOut != null) {
+    clearTimeout(lastTimeOut);
+  }
+  var writingDiv = document.getElementById("writing-area");
+  lastTimeOut = setTimeout(() => {
+    if (writingPeople.includes(username)) {
+      writingPeople.splice(writingPeople.indexOf(username), 1);
+    }
+    if (writingPeople.length === 0) {
+      writingDiv.style.display = "none";
+    }
+  }, 2000);
+  if (!writingPeople.includes(username)) {
+    writingPeople.push(username);
+  }
+  writingDiv.style.display = "block";
+  if (writingPeople.length === 1) {
+    writingDiv.children[0].innerText = `${writingPeople[0]} is writing ...`;
+  } else if (writingPeople.length === 2) {
+    writingDiv.children[0].innerText = `${writingPeople[0]} and ${writingPeople[1]} are writing ...`;
+  } else {
+    writingDiv.children[0].innerText = `Some people are writing ...`;
+  }
+}
+
+function sendMessage() {
+  var msg = document.getElementById("msgInput").value;
+  var newMsg = {
+    content: msg,
+    sender: {
+      userID: connectedUser.userId,
+      userName: connectedUser.name,
+    },
+    sendAt: new Date(Date.now()),
+  };
+  socket.emit("newMsg", {
+    conversationID: selectedConversation._id,
+    msg: newMsg,
+  });
 }

@@ -188,6 +188,12 @@ b {
   bottom: 0;
   padding-left: 176px;
 }
+
+.writing-area{
+  margin-top: 10px;
+  padding-left: 20px;
+}
+
 .conversation-list {
   width: 176px;
   background: #505d71;

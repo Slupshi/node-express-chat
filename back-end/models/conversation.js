@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
-const messageSchema = require("./message");
+const messageSchema = require("./schemas/message");
+const participantSchema = require("./schemas/participant");
 const conversationSchema = mongoose.Schema({
   title: { type: String, required: true },
-  participantsID: [{ type: String, required: true }],
+  participants: [participantSchema],
   messages: [messageSchema],
   createdAt: { type: Date, required: true },
 });

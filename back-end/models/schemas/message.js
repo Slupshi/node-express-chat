@@ -1,9 +1,6 @@
 const mongoose = require("mongoose");
 
-const senderSchema = mongoose.Schema({
-  senderID: { type: String, required: true },
-  senderName: { type: String, required: true },
-});
+const senderSchema = require("./participant");
 
 module.exports = mongoose.Schema({
   sender: senderSchema,
