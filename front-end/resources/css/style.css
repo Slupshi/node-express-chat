@@ -449,6 +449,7 @@ ul.tabs-container {
   height: 29px;
   padding: 8px;
   background: #445166;
+  display: none;
 }
 .my-account > .image {
   width: 30px;

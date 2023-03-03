@@ -8,11 +8,11 @@
 	<title>Node chat</title>
 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
-	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="resources/css/style.css">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.min.js"
 		integrity="sha512-N5JbZMETkl+0SZh5l8OA2VxSfF120owfQyy54iAXTJIKuqAn3A9TrNz1ypB55o8aSU5MxaodEgv74wGUvgUynQ=="
 		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-	<script type="text/javascript" src="main.js" defer></script>
+	<script type="text/javascript" src="resources/js/main.js" defer></script>
 </head>
 
 <body>
@@ -36,31 +36,30 @@
 		</div>
 		<div class="window-area">
 			<div class="conversation-list">
-				<ul class="">
+				<ul id="conversation-list" class="">
 					<li class="item"><a href="#"><i class="fa fa-list-alt"></i><span>Dashboard</span></a></li>
-					<li class="item active">
+					<!-- <li class="item active">
 						<a href="#">
 							<i class="fa fa-user"></i>
 							<span>Team chat</span>
 							<i class="fa fa-times"></i>
 						</a>
-					</li>
+					</li> -->
 				</ul>
-				<div class="my-account">
+				<div id="my-account" class="my-account">
 					<div class="image">
 						<img src="https://thispersondoesnotexist.com/image">
 						<i class="fa fa-circle online"></i>
 					</div>
 					<div class="name">
-						<span>John Doe</span>
+						<span id="accountName">John Doe</span>
 						<i class="fa fa-angle-down"></i>
 						<span class="availability">Available</span>
 					</div>
-
 				</div>
 			</div>
-			<div class="chat-area">
-				<div class="title"><b>Conversation title</b><i class="fa fa-search"></i></div>
+			<div id="chat-area" class="chat-area">
+				<!-- <div class="title"><b>Conversation title</b><i class="fa fa-search"></i></div>
 				<div class="chat-list">
 					<ul>
 						<li class="me">
@@ -89,6 +88,20 @@
 						<i class="fa fa-smile-o"></i>
 					</div>
 					<input type="button" value="Submit" class="send-btn">
+				</div> -->
+				<div id="login-form" class="login">
+					<strong>Se connecter</strong>
+					<form>
+						<div class="entry">
+							<label for="email">Email</label>
+							<input id="email" type="text" placeholder="Votre email" name="email">
+						</div>
+						<div class="entry">
+							<label for="password">Password</label>
+							<input id="password" type="password" placeholder="Password" name="password">
+						</div>						
+					</form>	
+					<button type="button" onclick="login()"> Login </button>				
 				</div>
 			</div>
 			<div class="right-tabs">
@@ -116,5 +129,30 @@
 		</div>
 	</div>
 </body>
-
 </html>
+
+<style>
+	.login{
+		height: 100%;
+		background-color: aliceblue;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}	
+
+	.login>strong{
+		font-size: 25px;
+	}
+
+	.entry{
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin: 10px 0;
+	}
+
+	.entry>label{
+		margin: 0 10px;
+	}
+</style>

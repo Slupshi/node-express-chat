@@ -42,3 +42,10 @@ exports.delete = (req, res, next) => {
     .then(() => res.status(200).json({ message: "Conversation supprimée" }))
     .catch((error) => res.status(400).json({ error }));
 };
+
+exports.own = (req, res, next) => {
+  sConversation
+    .find({ particpantsID: { $all: [req.body.userID] } })
+    .then((conversations) => res.status(200).json(conversations))
+    .catch((error) => res.status(400).json({ error }));
+};
